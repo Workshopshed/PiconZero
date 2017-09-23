@@ -2,7 +2,7 @@
 // Ported from Python
 
 /* Picon Zero CONTROL
-- 
+-
 - 2 motors driven by H-Bridge (DRV8833): (4 outputs)
 - 6 general purpose outputs: Can be LOW, HIGH, PWM, Servo or WS2812B
 - 4 general purpose inputs: Can be Analog, Digital or the temperature sensor DS18B20
@@ -28,7 +28,7 @@ function pz() {
     }
 
     this.InMode = {
-        Digital: 0, 
+        Digital: 0,
         Analog:  1,
         DS18B20: 2
         // (NB. 0x80 is Digital input with pullup)
@@ -39,7 +39,7 @@ function pz() {
         MOTORA: 0,      // Byte  -100 (full reverse) to +100 (full forward)
         MOTORB: 1,      // Byte  -100 (full reverse) to +100 (full forward)
         //Outputs 0 to 5 are available
-        OUTCFG0: 2,     // Byte (OutMode) 
+        OUTCFG0: 2,     // Byte (OutMode)
         OUTPUT0: 8,     // Byte  Data value(s)
         //Inputs 0 to 3 are available
         INCFG0: 14,     // Byte (InMode)
@@ -55,7 +55,7 @@ function pz() {
     var i2c = require('i2c');
     var pzaddr = 0x22; // I2C address of Picon Zero
     //Change the following to /dev/i2c-0 for early Pi models
-    var bus = new i2c(pzaddr , {device: '/dev/i2c-1'}); 
+    var bus = new i2c(pzaddr , {device: '/dev/i2c-1'});
 
     //---------------------------------------------;
     // Initialise the Board (same as cleanup)
@@ -93,7 +93,7 @@ function pz() {
         return [rval[1],rval[0]];
     }
 
-    // Set configuration of selected output  
+    // Set configuration of selected output
     // 0: Digital On/Off, 1: PWM, 2: Servo, 3: WS2812B
     this.setOutputConfig = function (output, mode) {
         if (output < 0 || output > 5) {  throw(new Error("Invalid output channel")); }
@@ -118,7 +118,7 @@ function pz() {
         bus.writeBytes(Commands.INCFG0 + channel, [mode],function(err) {
                 if (err) {
                         throw(err);
-                } 
+                }
             });
     }
 
@@ -131,7 +131,7 @@ function pz() {
             if (err) {
                     console.log ('Error in readChannel()');
                     console.log (err);
-            } 
+            }
         });
         // Data is split into 2 8bit bytes, low then high, should be values 1 to 1023
         // Have seen it glitch and return very high values though
@@ -141,13 +141,13 @@ function pz() {
     // Set output data for selected output channel
     // Mode  Name    Type    Values
     // 0     On/Off  Byte    0 is OFF, 1 is ON
-    // 1     PWM     Byte    0 to 100 percentage of ON time 
+    // 1     PWM     Byte    0 to 100 percentage of ON time
     // 2     Servo   Byte    Position 0 to 180 degrees (Python doc does not seem to be right)
     // 3     WS2812B 4 Bytes 0:Pixel ID, 1:Red, 2:Green, 3:Blue
 
     this.setOutput = function (channel, value) {
         if (channel < 0 || channel > 5)  {  throw(new Error("Invalid output channel")); }
-        
+
         bus.writeBytes(Commands.OUTPUT0 + channel, [value],function(err) {
             if (err) {
                 throw(err);
@@ -161,8 +161,8 @@ function pz() {
     this.setMotor = function (motor, speed) {
         if (motor < 0 || motor > 1) {  throw(new Error("Invalid motor channel")); }
         if (speed<-128 || speed > 127) {  throw(new Error("Invalid motor speed")); }
-        
-        bus.writeBytes(Commands.MotorA + motor, [speed],function(err) {
+
+        bus.writeBytes(Commands.MOTORA + motor, [speed],function(err) {
         if (err) {
                 throw(err);
         }
