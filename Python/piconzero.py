@@ -31,7 +31,7 @@ def getRevision():
     for i in range(RETRIES):
         try:
             rval = bus.read_word_data (pzaddr, 0)
-            return [rval/256, rval%256]
+            return [rval//256, rval%256]
         except:
             if (DEBUG):
                 print("Error in getRevision(), retrying")
